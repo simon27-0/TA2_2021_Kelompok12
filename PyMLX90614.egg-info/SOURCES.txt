@@ -1,0 +1,7 @@
+README.md
+setup.py
+PyMLX90614.egg-info/PKG-INFO
+PyMLX90614.egg-info/SOURCES.txt
+PyMLX90614.egg-info/dependency_links.txt
+PyMLX90614.egg-info/requires.txt
+PyMLX90614.egg-info/top_level.txt
