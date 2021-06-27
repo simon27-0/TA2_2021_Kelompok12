@@ -7,16 +7,16 @@ import RPi.GPIO as GPIO
 import subprocess
 
 # import the necessary packages
-from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input # package untuk memproses gambar input
 from tensorflow.keras.preprocessing.image import img_to_array
-from tensorflow.keras.models import load_model
+from tensorflow.keras.models import load_model # package load model maskNet
 from imutils.video import VideoStream
 from email.mime.text import MIMEText
 import numpy as np
 import argparse
-import imutils
+import imutils # package untuk metode pengubahan ukuran gambar
 import time
-import cv2
+import cv2 # import openCV untuk memanipulasi tampilan dan gambar
 import os
 
 bus = SMBus(1)
@@ -33,9 +33,13 @@ def execute_unix(inputcommand):
    p = subprocess.Popen(inputcommand, stdout=subprocess.PIPE, shell=True)
    (output, err) = p.communicate()
    return output
-def detect_and_predict_mask(frame, faceNet, maskNet):
+
+# Function untuk inilisasi pembacaan code pemrosesan bingkai
+# Fungsi ini mendeteksi wajah dan kemudian menerapkan pengklasifikasi masker wajah kami ke setiap ROI wajah
+def detect_and_predict_mask(frame, faceNet, maskNet): # proses pembuatan bingkai, mendeteksi dimana wajah berada, mendeteksi masker dalam wajah
         # grab the dimensions of the frame and then construct a blob
         # from it
+        # proses ini untuk mmembuat dimensi bingkai dan kemudian membuat blob dari dimensi tersebut
         (h, w) = frame.shape[:2]
         blob = cv2.dnn.blobFromImage(frame, 1.0, (300, 300),
                 (104.0, 177.0, 123.0))
@@ -46,12 +50,12 @@ def detect_and_predict_mask(frame, faceNet, maskNet):
 
         # initialize our list of faces, their corresponding locations,
         # and the list of predictions from our face mask network
-        faces = []
-        locs = []
-        preds = []
+        faces = [] # menemukan wajah
+        locs = []  # menemukan lokasi wajah
+        preds = [] # menemukan masker di dalam wajah
 
         # loop over the detections
-        for i in range(0, detections.shape[2]):
+        for i in range(0, detections.shape[2]): # ini berfungsi untuk menyaring bagian deteksi wajah yang lemah
                 # extract the confidence (i.e., probability) associated with
                 # the detection
                 confidence = detections[0, 0, i, 2]
@@ -61,7 +65,7 @@ def detect_and_predict_mask(frame, faceNet, maskNet):
                 if confidence > args["confidence"]:
                         # compute the (x, y)-coordinates of the bounding box for
                         # the object
-                        box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
+                        box = detections[0, 0, i, 3:7] * np.array([w, h, w, h]) # ini akan berfungsi untuk kotak pembatas frame dan memastikan frame tersebut tidak berada di luar batas gambar
                         (startX, startY, endX, endY) = box.astype("int")
 
                         # ensure the bounding boxes fall within the dimensions of
@@ -72,6 +76,7 @@ def detect_and_predict_mask(frame, faceNet, maskNet):
 
                         # extract the face ROI, convert it from BGR to RGB channel
                         # ordering, resize it to 224x224, and preprocess it
+                        # fungsi ini untuk extract ROI wajah dan pra pemrosesan, kemudian akan menambahkan hasil extract tersebut
                         face = frame[startY:endY, startX:endX]
                         face = cv2.cvtColor(face, cv2.COLOR_BGR2RGB)
                         face = cv2.resize(face, (224, 224))
@@ -84,12 +89,13 @@ def detect_and_predict_mask(frame, faceNet, maskNet):
                         locs.append((startX, startY, endX, endY))
 
         # only make a predictions if at least one face was detected
+        # condition ini memastikan untuk mendeteksi adanya wajah, jika tidak mendeteksi maka akan mengembalikan nilai 0
         if len(faces) > 0:
                 # for faster inference we'll make batch predictions on *all*
                 # faces at the same time rather than one-by-one predictions
                 # in the above `for` loop
-                faces = np.array(faces, dtype="float32")
-                preds = maskNet.predict(faces, batch_size=32)
+                faces = np.array(faces, dtype="float32") # untuk mengubah wajah menjadi array NumPy floating point 32-bit.
+                preds = maskNet.predict(faces, batch_size=32) # untuk menginisialisasi pendeteksian masker sehingga akan melakukan pendeteksian di dalam batch
 
         # return a 2-tuple of the face locations and their corresponding
         # locations
@@ -97,7 +103,7 @@ def detect_and_predict_mask(frame, faceNet, maskNet):
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-f", "--face", type=str,
+ap.add_argument("-f", "--face", type=str, 
         default="face_detector",
         help="path to face detector model directory")
 ap.add_argument("-m", "--model", type=str,
@@ -131,14 +137,17 @@ while True:
 
         # detect faces in the frame and determine if they are wearing a
         # face mask or not
-        (locs, preds) = detect_and_predict_mask(frame, faceNet, maskNet)
+        (locs, preds) = detect_and_predict_mask(frame, faceNet, maskNet) # ini fungsi untuk mendeteksi apakah menggunakan masker atau tidak
 
         # loop over the detected face locations and their corresponding
         # locations
         for (box, pred) in zip(locs, preds):
                 # unpack the bounding box and predictions
-                (startX, startY, endX, endY) = box
+                # Fungsi untuk membuat kotak pembatas wajah dan memprediksi masker
+                (startX, startY, endX, endY) = box 
                 (mask, withoutMask) = pred
+                
+                # HTML untuk hasil deteksi temperature suhu
                 body = MIMEText('''
                 <html>
 
@@ -148,6 +157,7 @@ while True:
                           <h2>Body Temperature: {}</h2>
                 </body>
                 </html>'''.format(j), 'html', 'utf-8')
+               
                 # determine the class label and color we'll use to draw
                 # the bounding box and text
                 if mask > withoutMask:
