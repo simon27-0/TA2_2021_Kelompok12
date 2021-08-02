@@ -147,7 +147,7 @@ while True:
                 (startX, startY, endX, endY) = box 
                 (mask, withoutMask) = pred
                 
-                # HTML untuk hasil deteksi temperature suhu
+                # HTML untuk menampilkan hasil deteksi temperature suhu pada frame
                 body = MIMEText('''
                 <html>
 
@@ -164,14 +164,14 @@ while True:
                         label = "Terima kasih sudah menggunakan masker"
                         color = (0, 255, 0)
                         a="Terima kasih sudah menggunakan masker"
-                        c = 'espeak -vid+f3 -k5 -s130 --punct="<characters>" "%s" 2>>/dev/null' % a
+                        c = 'espeak -vid+f3 -k5 -s130 --punct="<characters>" "%s" 2>>/dev/null' % a #mengeksekusi value dari "a"
                         execute_unix(c)
                         time.sleep(1)
 
-                        bus = SMBus(1)
-                        sensor = MLX90614(bus, address=0x5A)
-                        j = sensor.get_object_1()
-                        cv2.putText(frame, 'Suhu Tubuh anda: {} C'.format(j), (50, 100),
+                        bus = SMBus(1) #memperkenalkan library mlx90614 kepada sistem
+                        sensor = MLX90614(bus, address=0x5A) #memperkenalkan pin yang digunakan untuk mlx90614
+                        j = sensor.get_object_1() #inisialisasi hasil deteksi temperature suhu menjadi "j"
+                        cv2.putText(frame, 'Suhu Tubuh anda: {} C'.format(j), (50, 100), #memodifikasi tampilan menjadi berwarna RGB hijau
                                 cv2.FONT_HERSHEY_COMPLEX, 0.8, (0, 255, 0), 2)
                         if  j < 37 :
                                 cv2.putText(frame, 'Suhu tubuh anda normal', (50, 200),
@@ -223,7 +223,7 @@ while True:
 
 
         # show the output frame
-        cv2.imshow("Face Mask Detector", frame)
+        cv2.imshow("Face Mask Detector", frame) #Fitur opencv untuk mengeluarkan hasil program terhadap frame
         key = cv2.waitKey(1) & 0xFF
         # if the `q` key was pressed, break from the loop
         if key == ord("q"):
