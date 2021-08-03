@@ -167,6 +167,11 @@ while True:
                         c = 'espeak -vid+f3 -k5 -s130 --punct="<characters>" "%s" 2>>/dev/null' % a #mengeksekusi value dari "a"
                         execute_unix(c)
                         time.sleep(1)
+                        
+                        img_name = "database/"+ name +"/image_{}.png".format(img_counter)
+                        pyautogui.screenshot("database/"+ name +"/image_{}.png".format(img_counter))
+                        print("{} written!".format(img_name))
+                        img_counter += 1
 
                         bus = SMBus(1) #memperkenalkan library mlx90614 kepada sistem
                         sensor = MLX90614(bus, address=0x5A) #memperkenalkan pin yang digunakan untuk mlx90614
