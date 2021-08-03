@@ -163,6 +163,7 @@ while True:
                 if mask > withoutMask:
                         label = "Terima kasih sudah menggunakan masker"
                         color = (0, 255, 0)
+                        label = "{}: {:.2f}%".format(label, max(mask, withoutMask) * 100)
                         a="Terima kasih sudah menggunakan masker"
                         c = 'espeak -vid+f3 -k5 -s130 --punct="<characters>" "%s" 2>>/dev/null' % a #mengeksekusi value dari "a"
                         execute_unix(c)
