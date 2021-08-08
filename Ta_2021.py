@@ -78,7 +78,7 @@ def detect_and_predict_mask(frame, faceNet, maskNet): # proses pembuatan bingkai
                         # ordering, resize it to 224x224, and preprocess it
                         # fungsi ini untuk extract ROI wajah dan pra pemrosesan, kemudian akan menambahkan hasil extract tersebut
                         face = frame[startY:endY, startX:endX]
-                        face = cv2.cvtColor(face, cv2.COLOR_BGR2RGB)
+                        face = cv2.cvtColor(face, cv2.COLOR_BGR2RGB) # gambar yang dibaca oleh opencv merupakan urutannya warnanya adalah blue, green, red. itu harus diubah ke RGB jika ingin menggunakan fitur opencv
                         face = cv2.resize(face, (224, 224))
                         face = img_to_array(face)
                         face = preprocess_input(face)
