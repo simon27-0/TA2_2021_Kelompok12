@@ -112,6 +112,7 @@ ap.add_argument("-m", "--model", type=str,
 ap.add_argument("-c", "--confidence", type=float, default=0.5,
         help="minimum probability to filter weak detections")
 args = vars(ap.parse_args())
+
 # load our serialized face detector model from disk
 print("[INFO] loading face detector model...")
 prototxtPath = os.path.sep.join([args["face"], "deploy.prototxt"])
@@ -120,6 +121,7 @@ weightsPath = os.path.sep.join([args["face"],
 faceNet = cv2.dnn.readNet(prototxtPath, weightsPath)
 
 # load the face mask detector model from disk
+# pada bagian script di bawah ini, system akan memuat model yang sudah di train untuk dibandingkan dengan wajah yang akan di deteksi secara real time
 print("[INFO] loading face mask detector model...")
 maskNet = load_model(args["model"])
 
